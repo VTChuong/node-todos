@@ -54,7 +54,7 @@ UserSchema.methods.generateAuthToken = function() {
 };
 
 UserSchema.statics.findByToken = function (token) {
-    const user = this;
+    const User = this;
     let decoded;
     try {
         decoded = jwt.verify(token,'abc123')
@@ -85,9 +85,9 @@ UserSchema.pre('save',function (next) {
 });
 
 UserSchema.statics.findByCredentials = function (email, password) {
-    const user = this;
+    const User = this;
 
-    return user.findOne({email}).then(user => {
+    return User.findOne({email}).then(user => {
         if (!user) {
             return Promise.reject();
         }
@@ -103,6 +103,15 @@ UserSchema.statics.findByCredentials = function (email, password) {
         })
     })
 };
+
+UserSchema.methods.removeToken = function (token) {
+    const user = this;
+    return user.update({
+        $pull: {
+            tokens: { token }
+        }
+    })
+}
 
 const User = mongoose.model('User',UserSchema);
 
